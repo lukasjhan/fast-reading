@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const FastReadingApp = () => {
   const [text, setText] = useState('');
-  const [wpm, setWpm] = useState(600);
+  const [wpm, setWpm] = useState(550);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isReading, setIsReading] = useState(false);
   const words = text.split(/\s+/);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timer;
@@ -25,6 +26,38 @@ const FastReadingApp = () => {
 
     return () => clearInterval(interval);
   }, [isReading, currentWordIndex, words.length, wpm]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: any) => {
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        if (textAreaRef.current) {
+          saveDataToUrl(textAreaRef.current.value);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const encodedData = queryParams.get('data');
+
+    if (encodedData) {
+      try {
+        const decodedData = decodeURIComponent(atob(encodedData));
+        if (textAreaRef.current) {
+          textAreaRef.current.value = decodedData;
+        }
+      } catch (error) {
+        console.error('Invalid Base64 data in URL:', error);
+      }
+    }
+  }, []);
 
   const handleStart = () => {
     setIsReading(true);
@@ -64,6 +97,21 @@ const FastReadingApp = () => {
 
   const wordCount = text.split(/\s+/).filter((word) => word).length;
   const time = (wordCount / wpm) * 60;
+
+  const saveDataToUrl = (text: string) => {
+    const base64Encoded = btoa(encodeURIComponent(text));
+    const newUrl = `${window.location.pathname}?data=${base64Encoded}`;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+
+    navigator.clipboard.writeText(newUrl).then(
+      function () {
+        console.log('Async: Copying to clipboard was successful!');
+      },
+      function (err) {
+        console.error('Async: Could not copy text: ', err);
+      }
+    );
+  };
 
   return (
     <div className="wrapper">
@@ -114,6 +162,7 @@ const FastReadingApp = () => {
         </div>
       </div>
       <textarea
+        ref={textAreaRef}
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste your text here"
