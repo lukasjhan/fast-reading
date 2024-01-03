@@ -40,12 +40,48 @@ const FastReadingApp = () => {
     setIsFullscreen(!isFullscreen);
   };
 
+  const emphasizeRandomLetter = (word: string) => {
+    if (word.length === 0)
+      return { beforePart: '', emphasizedLetter: '', afterPart: '' };
+
+    const endsWithPeriod = word.endsWith('.');
+    const effectiveLength = endsWithPeriod ? word.length - 1 : word.length;
+
+    const center = Math.floor(effectiveLength / 2);
+    const range = Math.floor(effectiveLength / 4);
+
+    const startIndex = Math.max(center - range, 0);
+    const endIndex = Math.min(center + range, word.length - 1);
+
+    const randomIndex =
+      Math.floor(Math.random() * (endIndex - startIndex + 1)) + startIndex;
+    const emphasizedLetter = word[randomIndex];
+    const beforePart = word.substring(0, randomIndex);
+    const afterPart = word.substring(randomIndex + 1);
+
+    return { beforePart, emphasizedLetter, afterPart };
+  };
+
   return (
     <div className="wrapper">
       <div className="title">Fast Reading v1.0</div>
       <div className="reading-wrapper">
         <div className={isReading && isFullscreen ? 'fullscreen' : 'reading'}>
-          {isReading ? <p>{words[currentWordIndex]}</p> : null}
+          {isReading && (
+            <div className="word-container">
+              {(() => {
+                const { beforePart, emphasizedLetter, afterPart } =
+                  emphasizeRandomLetter(words[currentWordIndex]);
+                return (
+                  <>
+                    <span className="before-part">{beforePart}</span>
+                    <span className="emphasized">{emphasizedLetter}</span>
+                    <span className="after-part">{afterPart}</span>
+                  </>
+                );
+              })()}
+            </div>
+          )}
         </div>
       </div>
       <div className="wpm">

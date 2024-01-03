@@ -102,8 +102,9 @@ input {
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 4rem;
   margin-bottom: 2rem;
+  font-weight: bold;
 }
 
 .wpm {
@@ -133,4 +134,36 @@ input {
   border-radius: 12px;
   border: 4px solid #bcf1ff;
   margin: 2rem;
+  position: relative;
+}
+
+.word-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+}
+
+.before-part,
+.after-part {
+  white-space: nowrap; /* Prevents text from wrapping */
+}
+
+.emphasized {
+  font-weight: bold;
+  color: red;
+  position: relative; /* To position this element in the center */
+  z-index: 2; /* Ensures it's above the other text */
+}
+
+.before-part {
+  position: absolute;
+  right: 100%; /* Position it to the left of the emphasized letter */
+}
+
+.after-part {
+  position: absolute;
+  left: 100%; /* Position it to the right of the emphasized letter */
 }
