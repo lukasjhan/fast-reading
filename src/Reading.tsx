@@ -62,6 +62,9 @@ const FastReadingApp = () => {
     return { beforePart, emphasizedLetter, afterPart };
   };
 
+  const wordCount = text.split(/\s+/).filter((word) => word).length;
+  const time = (wordCount / wpm) * 60;
+
   return (
     <div className="wrapper">
       <div className="title">Fast Reading v1.0</div>
@@ -116,6 +119,21 @@ const FastReadingApp = () => {
         placeholder="Paste your text here"
         disabled={isReading}
       />
+      <div>
+        <div
+          style={{
+            display: 'flex',
+            gap: '1rem',
+          }}
+        >
+          <span>
+            <b>Word Count:</b> {wordCount}
+          </span>
+          <span>
+            <b>ETR:</b> {time.toFixed(2)} sec
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
